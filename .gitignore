@@ -2,6 +2,11 @@
 # Created by https://www.gitignore.io/api/web,linux,macos,flask,python,windows
 # Edit at https://www.gitignore.io/?templates=web,linux,macos,flask,python,windows
 
+### Misc ###
+*.xml
+jsLibraryMappings.xml
+jsLibraryMappings.xml
+
 ### Flask ###
 instance/*
 !instance/.gitignore

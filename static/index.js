@@ -1,4 +1,4 @@
-Document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 
     // Connect to websocket
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
@@ -6,18 +6,19 @@ Document.addEventListener('DOMContentLoaded', () => {
     // On connect
     socket.on('connect', () => {
         //When button is pressed
-        sendButton.onClick = () => {
-            //Submit comment
-            socket.emit(document.getElementById('myMessage').value);
+        $("#sendButton").click( () => {
+            //Send message
+            socket.emit('messageSend', document.getElementById('myMessage').value);
+            console.log('messageSend event');
             //Clear comment section
             document.getElementById('myMessage').value = '';
-        };
+        });
     });
 
     //When comment received
     socket.on('message', (msg) => {
         //Append to unordered list
         $('#messageLog').append('<li>'+msg+'<li/>');
-        console.log('Received message');
+        console.log('message event');
     });
 });
