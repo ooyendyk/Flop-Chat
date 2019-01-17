@@ -13,8 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // On connect
     socket.on('connect', () => {
-        //Get username
-
         //When button is pressed
         $("#sendButton").click( () => {
             //Send message
@@ -31,4 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#messageLog').append('<li>'+msg+'<li/>');
         console.log('message event');
     });
+
+    //On connect to room
+    socket.on('message_history', (messageHistory) => {
+        if (messageHistory.length !== 0) {
+            for (var messageNumber = 0; messageNumber < messageHistory.length; messageNumber++) {
+                $('#messageLog').append('<li>' + messageHistory[messageNumber] + '<li/>');
+            }
+        } else {
+            console.log('message_history is null')
+        }
+
+    });
+
 });
