@@ -8,38 +8,86 @@ document.addEventListener('DOMContentLoaded', () => {
         var username = localStorage.getItem('username');
     }
 
+    var roomCurrent = '';
+
     // Connect to websocket
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
     // On connect
     socket.on('connect', () => {
+
+
+        socket.emit('connected');
+
+        $(document).on('click', "input.roomButton", (evt) => {
+            var roomKey = $(evt.target).val();
+            var dict ={'username': username, 'roomKey': roomKey};
+            socket.emit('roomChangeRequest', dict);
+        });
+
         //When button is pressed
         $("#sendButton").click( () => {
             //Send message
-            socket.emit('messageSend', (username + ': ' + document.getElementById('myMessage').value));
-            console.log('messageSend event');
+            var messageSend = username + ': ' + document.getElementById('myMessage').value;
+            socket.emit('messageSend', {'roomCurrent': roomCurrent, 'messageSend': messageSend});
             //Clear comment section
             document.getElementById('myMessage').value = '';
         });
+
+
+        //When 'New Room' is pressed
+        $("#roomNew").click( () => {
+            //var roomName = prompt('Please enter new room name');
+            var roomName = document.getElementById('roomNewForm').value;
+            document.getElementById('roomNewForm').value = '';
+            //Check name
+            if (typeof roomList !== 'undefined') {
+                var roomTaken = false;
+                for (var room = 0; room < roomList.length; room++) {
+                    if (roomList[room] == roomName) {
+                        roomTaken = true;
+                    }
+                }
+                if (roomTaken == false) {
+                    socket.emit('roomCreate', (roomName));
+                }
+            } else {
+                socket.emit('roomCreate', (roomName));
+            }
+        });
+    });
+
+    socket.on('connectedReply', (roomListKey) => {
+        for (var item = 0; item <= roomListKey.length; item++) {
+
+            $('#roomList').append('<input class="roomButton" type="button" value="' + roomListKey[item] + '"/>')
+        }
+    });
+
+    //On newRoom
+    socket.on('roomNew', (room) =>{
+        $('#roomList').append('<input class="roomButton" type="button" value="' + room + '"/>')
+    });
+
+    //Render room messages
+    socket.on('roomChange', (dict) =>{
+        if (dict['username'] == username) {
+            $('#messageLog').empty();
+            var roomData = dict['roomData'];
+            for (var messageNumber = 0; messageNumber < dict['roomData'].length; messageNumber++) {
+                $('#messageLog').append('<li>' + roomData[messageNumber] + '<li/>');
+            }
+        }
+        roomCurrent = dict['roomKey'];
     });
 
     //When comment received
-    socket.on('message', (msg) => {
+    socket.on('message', (dict) => {
         //Append to unordered list
-        $('#messageLog').append('<li>'+msg+'<li/>');
-        console.log('message event');
-    });
-
-    //On connect to room
-    socket.on('message_history', (messageHistory) => {
-        if (messageHistory.length !== 0) {
-            for (var messageNumber = 0; messageNumber < messageHistory.length; messageNumber++) {
-                $('#messageLog').append('<li>' + messageHistory[messageNumber] + '<li/>');
-            }
-        } else {
-            console.log('message_history is null')
+        if (dict['roomCurrent'] == roomCurrent) {
+            $('#messageLog').append('<li>'+dict['messageSend']+'<li/>');
         }
-
+        
     });
 
 });

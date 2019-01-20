@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 
 from flask import Flask, render_template, request, jsonify
@@ -7,25 +8,41 @@ from flask_socketio import SocketIO, emit, send
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
-message_history = []
+room_list = {}
+
 
 @app.route('/')
 def index():
     return render_template('/index.html')
 
 @socketio.on('connect')
-def sendMessageHistory():
-    emit('message_history', message_history, broadcast=False)
+def connect():
+    emit('roomList', 'Home', broadcast=False)
+
+@socketio.on('connected')
+def connected():
+    for item in room_list:
+        emit('roomNew', item, broadcast=True)
 
 @socketio.on('messageSend')
-def handleMessage(msg):
-    print('recieved' + msg)
-    if (len(message_history) <= 100):
-        message_history.append(msg)
+def handleMessage(dict):
+    if (len(room_list[dict['roomCurrent']]) <= 100):
+        room_list[dict['roomCurrent']].append(dict['messageSend'])
     else:
-        message_history.pop(0)
-        message_history.append(msg)
-    emit('message', msg, broadcast=True)
+        room_list[dict['roomCurrent']].pop(0)
+        room_list[dict['roomCurrent']].append(dict['messageSend'])
+    emit('message', dict, broadcast=True)
+
+@socketio.on('roomChangeRequest')
+def roomChangeRequest(dict):
+    if dict['roomKey'] in room_list:
+        dict['roomData'] = room_list[dict['roomKey']]
+        emit('roomChange', dict, broadcast=True)
+
+@socketio.on('roomCreate')
+def roomCreate(room):
+    room_list[room] = []
+    emit('roomNew', room, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app)
