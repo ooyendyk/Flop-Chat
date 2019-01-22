@@ -15,10 +15,6 @@ def index():
 
 @socketio.on('connect')
 def connect():
-    emit('roomList', 'Home', broadcast=False)
-
-@socketio.on('connected')
-def connected():
     for item in room_list:
         emit('connectedReply', item, broadcast=True)
     emit('connectedDone', False, broadcast=True)
