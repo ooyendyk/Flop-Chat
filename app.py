@@ -35,9 +35,13 @@ def roomChangeRequest(dict):
         emit('roomChange', dict, broadcast=True)
 
 @socketio.on('roomCreate')
-def roomCreate(room):
-    room_list[room] = []
-    emit('roomNew', room, broadcast=True)
+def roomCreate(dict):
+    print(dict)
+    if dict['roomName'] in room_list:
+        emit('roomNameTaken', dict, broadcast=True)
+    else:
+        room_list[dict['roomName']] = []
+        emit('roomNew', dict, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app)

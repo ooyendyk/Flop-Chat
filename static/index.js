@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#roomNew').click( () => {
             var roomName = document.getElementById('roomNewForm').value;
             document.getElementById('roomNewForm').value = '';
-            socket.emit('roomCreate', (roomName));
+            socket.emit('roomCreate', {'username' : username, 'roomName' : roomName});
         });
     });
 
@@ -63,8 +63,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     //When room is created
-    socket.on('roomNew', (room) => {
-        $('#roomList').append('<input class="roomButton" type="button" value="' + room + '"/>')
+    socket.on('roomNew', (dict) => {
+        $('#roomList').append('<input class="roomButton" type="button" value="' + dict['roomName'] + '"/>')
+    });
+
+    //When room name is taken
+    socket.on('roomNameTaken', (dict) => {
+        console.log('roomNameTaken: ' + dict + '  username: ' + username);
+        if (dict['username'] == username) {
+            console.log('alert!');
+            alert('That room name is taken');
+        }
     });
 
     //When server authorizes room change
