@@ -93,5 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dict['roomCurrent'] == roomCurrent) {
             $('#messageLog').append('<li>' + dict['messageSend'] + '<li/>');
         }
+        $('li:last').hide(); //Temporary fix to double post bug. Need to find root cause.
     });
 });
