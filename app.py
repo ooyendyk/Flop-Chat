@@ -22,7 +22,8 @@ def connect():
 @socketio.on('connected')
 def connected():
     for item in room_list:
-        emit('roomNew', item, broadcast=True)
+        emit('connectedReply', item, broadcast=True)
+    emit('connectedDone', False, broadcast=True)
 
 @socketio.on('messageSend')
 def handleMessage(dict):

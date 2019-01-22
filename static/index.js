@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     var roomCurrent = '';
+    var connectedDataRecieved = false;
 
     // Connect to websocket
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
@@ -58,14 +59,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('connectedReply', (roomListKey) => {
-        for (var item = 0; item <= roomListKey.length; item++) {
-
-            $('#roomList').append('<input class="roomButton" type="button" value="' + roomListKey[item] + '"/>')
+        if (connectedDataRecieved == false) {
+            $('#roomList').append('<input class="roomButton" type="button" value="' + roomListKey + '"/>')
         }
+    });
+
+    socket.on('connectedDone', () => {
+        connectedDataRecieved = true;
     });
 
     //On newRoom
     socket.on('roomNew', (room) =>{
+        $('#roomList').append('<input class="roomButton" type="button" value="' + room + '"/>')
+    });
+
+    //On connectedData
+    socket.on('connectedData', (room) => {
         $('#roomList').append('<input class="roomButton" type="button" value="' + room + '"/>')
     });
 
