@@ -2,32 +2,37 @@
 <html lang="en">
 
 <head>
-    <script
-            type="text/javascript"
+    <!--Socket.io-->
+    <script type="text/javascript"
             src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <!--jQuery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--Javascript-->
     <script src="{{ url_for('static', filename='index.js') }}"></script>
+    <!--CSS-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <title>Flop Chat</title>
 </head>
 
 <body>
-    <!--RoomTitle-->
-    <!--List of rooms-->
-    <div id="roomList">
+
+    <div id="messageLog" class="message-area">
     </div>
-    <!--New room button form-->
-    <div>
-        <input id="roomNewForm" type="text">
-        <button id="roomNew">New room</button>
+
+    <div class="message-new-area">
+        <input id="myMessage" type="text" placeholder="Message" name="submit_message">
+        <input id="sendButton" type="button" value="Send">
     </div>
-    <div>
-        <input id="myMessage" type="text">
-        <button id="sendButton"> Send </button>
-        <br />
-        <ul id="messageLog">
-            <li>Messages: </li>
-        </ul>
+
+    <div id="tab" class="tab">
+    </div>
+
+    <div class="room-new-area">
+        <input id="roomNewForm" type="text" placeholder="New room">
+        <input id="roomNew" type="button" value="Create">
     </div>
 </body>
 </html>

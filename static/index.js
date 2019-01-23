@@ -28,12 +28,19 @@ document.addEventListener('DOMContentLoaded', () => {
         $(document).on('click', 'input.roomButton', (evt) => {
             var roomKey = $(evt.target).val();
             var dict = {'username': username, 'roomKey': roomKey};
+            // Changes active room button color
+            roomButton = document.getElementsByClassName("roomButton");
+            for (i = 0; i < roomButton.length; i++) {
+                roomButton[i].className = roomButton[i].className.replace(" active", "");
+            }
+            evt.currentTarget.className += " active";
+            // Emit room change request
             socket.emit('roomChangeRequest', dict);
         });
 
         // Send button
         $('#sendButton').click( () => {
-            var messageSend = username + ': ' + document.getElementById('myMessage').value;
+            var messageSend = '<b>' + username + ': </b>' + document.getElementById('myMessage').value;
             document.getElementById('myMessage').value = '';
             socket.emit('messageSend', {'roomCurrent': roomCurrent, 'messageSend': messageSend});
         });
@@ -51,9 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Data from server  */
 
     // Render room button on connect
-    socket.on('connectedReply', (roomListKey) => {
+    socket.on('connectedReply', (roomListKey) => { // change #tab to #roomlist for greater consistency
         if (connectedDataRecieved == false) {
-            $('#roomList').append('<input class="roomButton" type="button" value="' + roomListKey + '"/>')
+            $('#tab').append('<input class="roomButton" type="button" value="' + roomListKey + '"/>')
         }
     });
 
@@ -63,8 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     //When room is created
-    socket.on('roomNew', (dict) => {
-        $('#roomList').append('<input class="roomButton" type="button" value="' + dict['roomName'] + '"/>')
+    socket.on('roomNew', (dict) => { // change #tab to #roomlist for greater consistency
+        console.log('Adding room: ' + dict['username'] + ' : ' + dict['roomName']);
+        $('#tab').append('<input class="roomButton" type="button" value="' + dict['roomName'] + '">')
     });
 
     //When room name is taken
@@ -82,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#messageLog').empty();
             var roomData = dict['roomData'];
             for (var messageNumber = 0; messageNumber < dict['roomData'].length; messageNumber++) {
-                $('#messageLog').append('<li>' + roomData[messageNumber] + '<li/>');
+                $('#messageLog').append('<p>' + roomData[messageNumber] + '<p/>');
             }
         }
         roomCurrent = dict['roomKey'];
@@ -91,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //When message received
     socket.on('message', (dict) => {
         if (dict['roomCurrent'] == roomCurrent) {
-            $('#messageLog').append('<li>' + dict['messageSend'] + '<li/>');
+            $('#messageLog').append('<p>' + dict['messageSend'] + '<p/>');
         }
         $('li:last').hide(); //Temporary fix to double post bug. Need to find root cause.
     });
